@@ -65,6 +65,7 @@ First we will create a `cdm_reference` from *GiBleed* database:
 ```{r, echo = FALSE}
 options("width"=120)
 library(CDMConnector)
+library(duckdb)
 library(DiagrammeR)
 library(DiagrammeRsvg)
 library(rsvg)
