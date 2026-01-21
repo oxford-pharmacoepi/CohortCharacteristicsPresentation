@@ -117,7 +117,11 @@ We can start instantiating a cohort:
 ```{r}
 cdm$my_cohort <- conceptCohort(
   cdm = cdm,
-  conceptSet = list(),
+  conceptSet = list(
+    viral_sinusitis = 40481087L, 
+    sinusitis = 4283893L, 
+    chronic_sinusitis = 257012L
+  ),
   name = "my_cohort"
 )
 cohortCount(cdm$my_cohort)
@@ -138,7 +142,9 @@ tableCohortCount(result = result)
 ## Summarise cohort entries
 
 ```{r}
-plotCohortCount(result = result)
+result |>
+  filter(variable_name == "Number records") |>
+  plotCohortCount(colour = "cohort_name")
 ```
 
 ## Summarise cohort entries
@@ -186,6 +192,28 @@ tableCohortAttrition(result = result)
 
 ```{r}
 plotCohortAttrition(result = result, type = "png")
+```
+
+## Summarise cohort overlap
+
+It can be useful to identify the individuals that are in two cohorts:
+
+. . .
+
+```{r}
+result <- summariseCohortOverlap(cohort = cdm$my_cohort)
+```
+
+. . .
+
+```{r, echo = T, eval = T}
+tableCohortOverlap(result)
+```
+
+## Summarise cohort overlap
+
+```{r}
+plotCohortOverlap(result = result)
 ```
 
 <!-- ## summariseCharacteristics -->
@@ -470,26 +498,6 @@ plotCohortAttrition(result = result, type = "png")
 <!--   summariseCohortOverlap() -->
 
 <!-- glimpse(result) -->
-<!-- ``` -->
-
-<!-- ## SummariseCohortOverlap -->
-
-<!-- . . . -->
-
-<!-- Again can get a table with `tableCohortOverlap` -->
-
-<!-- ```{r, echo = T, eval = T} -->
-<!-- tableCohortOverlap(result) -->
-<!-- ``` -->
-
-<!-- ## plotCohortOverlap -->
-
-<!-- . . . -->
-
-<!-- Again can get a plot with `plotCohortOverlap` -->
-
-<!-- ```{r, echo = T, eval = T} -->
-<!-- plotCohortOverlap(result = result, uniqueCombinations = TRUE) -->
 <!-- ``` -->
 
 <!-- ## SummariseCohortTiming -->
