@@ -26,6 +26,13 @@ jobs:
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           needs: website
+      
+      - name: Install development version of CohortCharacteristics
+        run: |
+          Rscript -e "install.packages("remotes")"
+          Rscript -e "remotes::install_github('darwin-eu-dev/CohortCharacteristics')"
+        env:
+          GITHUB_PAT: ${{ secrets.GH_PAT }}
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
