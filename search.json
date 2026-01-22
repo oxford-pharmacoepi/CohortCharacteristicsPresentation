@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "index.html#cohortcharacteristics",
+    "href": "index.html#cohortcharacteristics",
+    "title": "CohortCharacteristics",
+    "section": "CohortCharacteristics",
+    "text": "CohortCharacteristics"
+  },
+  {
+    "objectID": "index.html#website",
+    "href": "index.html#website",
+    "title": "CohortCharacteristics",
+    "section": "Website",
+    "text": "Website\nCohort characteristics is on cran:\n\n\ninstall.packages(\"CohortCharacteristics\")\n\n\n\nYou can also install the development version from our github repo:\n\n\n\nremotes::install_github(\"darwin-eu/CohortCharacteristics\")\n\n\n\nThe documentation and vignettes of the packages can be found in our page: https://darwin-eu.github.io/CohortCharacteristics/"
+  },
+  {
+    "objectID": "index.html#lets-get-started",
+    "href": "index.html#lets-get-started",
+    "title": "CohortCharacteristics",
+    "section": "Let’s get started",
+    "text": "Let’s get started\n\nlibrary(CohortCharacteristics)\nlibrary(omock)\nlibrary(CohortConstructor)\nlibrary(visOmopResults)\nlibrary(dplyr)\nlibrary(PatientProfiles)"
+  },
+  {
+    "objectID": "index.html#lets-get-started-1",
+    "href": "index.html#lets-get-started-1",
+    "title": "CohortCharacteristics",
+    "section": "Let’s get started",
+    "text": "Let’s get started\nFirst we will create a cdm_reference from GiBleed database:\n\n\ncdm &lt;- mockCdmFromDataset(datasetName = \"GiBleed\", source = \"duckdb\")\ncdm"
+  },
+  {
+    "objectID": "index.html#prior-conditions",
+    "href": "index.html#prior-conditions",
+    "title": "CohortCharacteristics",
+    "section": "Prior conditions",
+    "text": "Prior conditions"
+  },
+  {
+    "objectID": "index.html#number-of-visit-before",
+    "href": "index.html#number-of-visit-before",
+    "title": "CohortCharacteristics",
+    "section": "Number of visit before",
+    "text": "Number of visit before"
+  },
+  {
+    "objectID": "index.html#time-to-prior-vaccination",
+    "href": "index.html#time-to-prior-vaccination",
+    "title": "CohortCharacteristics",
+    "section": "Time to prior vaccination",
+    "text": "Time to prior vaccination"
+  },
+  {
+    "objectID": "index.html#cohortcharacteristics-1",
+    "href": "index.html#cohortcharacteristics-1",
+    "title": "CohortCharacteristics",
+    "section": "CohortCharacteristics",
+    "text": "CohortCharacteristics\n\n\n👉 Packages website\n👉 CRAN link\n👉 Manual\n📧 marti.catalasabate@ndorms.ox.ac.uk"
+  }
+]
