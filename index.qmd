@@ -57,6 +57,7 @@ library(CohortConstructor)
 library(visOmopResults)
 library(dplyr)
 library(PatientProfiles)
+library(plotly)
 ```
 
 ## Let's get started
@@ -73,421 +74,527 @@ library(rsvg)
 library(grid)
 library(png)
 library(gt)
+library(reactable)
 ```
 
 . . .
 
 ```{r}
 cdm <- mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")
+```
+```{r, message=TRUE}
 cdm
 ```
 
-<!-- ## Workflow -->
+## Workflow
 
-<!-- We have three types of functions: -->
+We have three types of functions:
 
-<!-- -   **summarise**: these functions produce an standardised output to summarise a cohort. This standard output is called `summarised_result`. -->
+-   **summarise**: these functions produce an standardised output to summarise a cohort. This standard output is called `summarised_result`.
 
-<!-- -   **plot**: these functions produce plots (currently, only ggplot, but working to implement plotly) from a `summarised_result` object. -->
+-   **plot**: these functions produce plots (currently, only ggplot, but working to implement plotly) from a `summarised_result` object.
 
-<!-- -   **table**: these functions produce tables (gt and flextable) from a `summarised_result` object. -->
+-   **table**: these functions produce tables (gt and flextable) from a `summarised_result` object.
 
-<!-- . . . -->
+. . .
 
-<!-- ## Contents -->
+## Contents
 
-<!-- -   [Summarise cohort entries](https://darwin-eu.github.io/CohortCharacteristics/articles/summarise_cohort_entries.html) -->
+-   [Summarise cohort entries](https://darwin-eu.github.io/CohortCharacteristics/articles/summarise_cohort_entries.html)
 
-<!-- -   [Summarise cohort timing](https://darwin-eu.github.io/CohortCharacteristics/articles/summarise_cohort_timing.html) -->
+-   [Summarise cohort timing](https://darwin-eu.github.io/CohortCharacteristics/articles/summarise_cohort_timing.html)
 
-<!-- -   [Summarise cohort overlap](https://darwin-eu.github.io/CohortCharacteristics/articles/summarise_cohort_overlap.html) -->
+-   [Summarise cohort overlap](https://darwin-eu.github.io/CohortCharacteristics/articles/summarise_cohort_overlap.html)
 
-<!-- -   [Summarise cohort characteristics](https://darwin-eu.github.io/CohortCharacteristics/reference/summariseCharacteristics.html) -->
+-   [Summarise cohort characteristics](https://darwin-eu.github.io/CohortCharacteristics/reference/summariseCharacteristics.html)
 
-<!-- -   [Summarise large scale characteristics](https://darwin-eu.github.io/CohortCharacteristics/reference/summariseLargeScaleCharacteristics.html) -->
+-   [Summarise large scale characteristics](https://darwin-eu.github.io/CohortCharacteristics/reference/summariseLargeScaleCharacteristics.html)
 
-<!-- ## Set the style -->
+## Set the style
 
-<!-- ```{r} -->
-<!-- setGlobalTableOptions(style = "darwin") -->
-<!-- setGlobalPlotOptions(style = "darwin") -->
-<!-- ``` -->
+```{r}
+setGlobalTableOptions(style = "darwin")
+setGlobalPlotOptions(style = "darwin")
+```
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- We can start instantiating a cohort: -->
+We can start instantiating a cohort:
 
-<!-- ```{r} -->
-<!-- cdm$my_cohort <- conceptCohort( -->
-<!--   cdm = cdm, -->
-<!--   conceptSet = list( -->
-<!--     viral_sinusitis = 40481087L,  -->
-<!--     sinusitis = 4283893L,  -->
-<!--     chronic_sinusitis = 257012L -->
-<!--   ), -->
-<!--   name = "my_cohort" -->
-<!-- ) -->
-<!-- cohortCount(cdm$my_cohort) -->
-<!-- ``` -->
+```{r}
+cdm$my_cohort <- conceptCohort(
+  cdm = cdm,
+  conceptSet = list(
+    viral_sinusitis = 40481087L,
+    sinusitis = 4283893L,
+    chronic_sinusitis = 257012L
+  ),
+  name = "my_cohort"
+)
+cohortCount(cdm$my_cohort)
+```
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- ```{r} -->
-<!-- result <- summariseCohortCount(cdm$my_cohort) -->
-<!-- ``` -->
+```{r}
+result <- summariseCohortCount(cdm$my_cohort)
+```
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r} -->
-<!-- tableCohortCount(result = result) -->
-<!-- ``` -->
+```{r}
+tableCohortCount(result = result)
+```
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- ```{r} -->
-<!-- result |> -->
-<!--   filter(variable_name == "Number records") |> -->
-<!--   plotCohortCount(colour = "cohort_name") -->
-<!-- ``` -->
+```{r}
+result |>
+  filter(variable_name == "Number records") |>
+  plotCohortCount(colour = "cohort_name")
+```
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- Now we can apply some inclusion criteria: -->
+Now we can apply some inclusion criteria:
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r} -->
-<!-- cdm$my_cohort <- cdm$my_cohort |> -->
-<!--   requireAge(ageRange = c(0, 15)) -->
-<!-- cohortCount(cdm$my_cohort) -->
-<!-- ``` -->
+```{r}
+cdm$my_cohort <- cdm$my_cohort |>
+  requireAge(ageRange = c(0, 15))
+cohortCount(cdm$my_cohort)
+```
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r} -->
-<!-- cdm$my_cohort <- cdm$my_cohort |> -->
-<!--   requirePriorObservation(minPriorObservation = 365) -->
-<!-- cohortCount(cdm$my_cohort) -->
-<!-- ``` -->
+```{r}
+cdm$my_cohort <- cdm$my_cohort |>
+  requirePriorObservation(minPriorObservation = 365)
+cohortCount(cdm$my_cohort)
+```
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- This data has been stored in the attrition attribute -->
+This data has been stored in the attrition attribute
 
-<!-- ```{r} -->
-<!-- attrition(cdm$my_cohort) |> -->
-<!--   glimpse() -->
-<!-- ``` -->
+```{r}
+attrition(cdm$my_cohort) |>
+  glimpse()
+```
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- ```{r} -->
-<!-- result <- summariseCohortAttrition(cohort = cdm$my_cohort) -->
-<!-- ``` -->
+```{r}
+result <- summariseCohortAttrition(cohort = cdm$my_cohort)
+```
 
-<!-- . . . -->
+. . .
 
-<!-- :::{.scroll} -->
-<!-- ```{r} -->
-<!-- tableCohortAttrition(result = result) -->
-<!-- ``` -->
-<!-- ::: -->
+:::{.scroll}
+```{r}
+tableCohortAttrition(result = result)
+```
+:::
 
-<!-- ## Summarise cohort entries -->
+## Summarise cohort entries
 
-<!-- ```{r} -->
-<!-- plotCohortAttrition(result = result, type = "png") -->
-<!-- ``` -->
+```{r}
+plotCohortAttrition(result = result, type = "png")
+```
 
-<!-- ## Summarise cohort overlap -->
+## Summarise cohort overlap
 
-<!-- It can be useful to identify the individuals that are in two cohorts: -->
+It can be useful to identify the individuals that are in two cohorts:
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r} -->
-<!-- result <- summariseCohortOverlap(cohort = cdm$my_cohort) -->
-<!-- ``` -->
+```{r}
+result <- summariseCohortOverlap(cohort = cdm$my_cohort)
+```
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- tableCohortOverlap(result) -->
-<!-- ``` -->
+```{r, echo = T, eval = T}
+tableCohortOverlap(result)
+```
 
-<!-- ## Summarise cohort overlap -->
+## Summarise cohort overlap
 
-<!-- ```{r} -->
-<!-- plotCohortOverlap(result = result) -->
-<!-- ``` -->
+```{r}
+plotCohortOverlap(result = result)
+```
 
-<!-- ## Summarise cohort overlap -->
+## Summarise cohort overlap
 
-<!-- By default the overlpa is done at the `subject_id` level, but we can customise this and use more columns: -->
+By default the overlap is done at the `subject_id` level, but we can customise this and use more columns:
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r} -->
-<!-- result <- summariseCohortOverlap(cohort = cdm$my_cohort, overlapBy = c("subject_id", "cohort_start_date")) -->
-<!-- ``` -->
+```{r}
+result <- summariseCohortOverlap(cohort = cdm$my_cohort, overlapBy = c("subject_id", "cohort_start_date"))
+```
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r} -->
-<!-- tableCohortOverlap(result = result) -->
-<!-- ``` -->
+```{r}
+tableCohortOverlap(result = result)
+```
 
-<!-- ## Summarise cohort characteristics -->
+## Summarise cohort characteristics
 
-<!-- . . . -->
+. . .
 
-<!-- To get summary of the characteristics for your cohort you can use `summariseCharacteristics()`: -->
+To get summary of the characteristics for your cohort you can use `summariseCharacteristics()`:
 
-<!-- . . . -->
+. . .
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- summariseCharacteristics(cohort = cdm$my_cohort) -->
-<!-- ``` -->
+```{r, echo = T, eval = T}
+result <- summariseCharacteristics(cohort = cdm$my_cohort)
+```
 
-<!-- ##  Summarise cohort characteristics -->
+##  Summarise cohort characteristics
 
-<!-- :::{.scroll} -->
-<!-- ```{r} -->
-<!-- tableCharacteristics(result = result, header = "cohort_name") -->
-<!-- ``` -->
-<!-- ::: -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result, header = "cohort_name")
+```
+:::
 
-<!-- ## Summarise cohort characteristics -->
+## Summarise cohort characteristics
 
-<!-- By default we have seen how demographics are characterised, by we can do more. -->
+By default we have seen how demographics are characterised, by we can do more.
 
-<!-- ```{r} -->
-<!-- result <- summariseCharacteristics( -->
-<!--   cohort = cdm$my_cohort, -->
-<!--   ageGroup = list(c(0, 4), c(5, 9), c(10, 14), c(15, Inf)) -->
-<!-- ) -->
-<!-- ``` -->
+```{r}
+result <- summariseCharacteristics(
+  cohort = cdm$my_cohort,
+  ageGroup = list(c(0, 4), c(5, 9), c(10, 14), c(15, Inf))
+)
+```
 
-<!-- . . . -->
+. . .
 
-<!-- :::{.scroll} -->
-<!-- ```{r} -->
-<!-- tableCharacteristics(result = result) -->
-<!-- ``` -->
-<!-- ::: -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result)
+```
+:::
 
-<!-- ## Summarise cohort characteristics -->
+## Summarise cohort characteristics
 
-<!-- We can stratify the characterisation using columns, for example we will characterise the cohort `sinusitis` by sex. -->
+We can stratify the characterisation using columns, for example we will characterise the cohort `sinusitis` by sex.
 
-<!-- ```{r} -->
-<!-- result <- cdm$my_cohort |> -->
-<!--   addSex() |> -->
-<!--   summariseCharacteristics( -->
-<!--     cohortId = "sinusitis", -->
-<!--     strata = "sex", -->
-<!--     ageGroup = list(c(0, 4), c(5, 9), c(10, 14), c(15, Inf)) -->
-<!--   ) -->
-<!-- ``` -->
+```{r}
+result <- cdm$my_cohort |>
+  addSex() |>
+  summariseCharacteristics(
+    cohortId = "sinusitis",
+    strata = "sex",
+    ageGroup = list(c(0, 4), c(5, 9), c(10, 14), c(15, Inf))
+  )
+```
 
-<!-- . . . -->
+. . .
 
-<!-- :::{.scroll} -->
-<!-- ```{r} -->
-<!-- tableCharacteristics(result = result) -->
-<!-- ``` -->
-<!-- ::: -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result, header = "sex", hide = c("cdm_name", "cohort_name", "table_name"))
+```
+:::
 
-<!-- ## Summarise cohort characteristics -->
+## Summarise cohort characteristics
 
-<!-- We can also summarise the prior conditions. We will need either a codelist of conditions or a preior instantiated cohort. In this case we will create a cohort: -->
+We can also summarise the prior conditions. We will need either a codelist of conditions or a prior instantiated cohort. In this case we will create a cohort:
 
-<!-- ```{r} -->
-<!-- cdm$conditions <- conceptCohort( -->
-<!--   cdm = cdm, -->
-<!--   conceptSet = list( -->
-<!--     hypertension = 4112343L, -->
-<!--     diabetes = 260139L, -->
-<!--     cardiovascular_disease = 372328L -->
-<!--   ), -->
-<!--   name = "conditions" -->
-<!-- ) -->
-<!-- ``` -->
+```{r}
+cdm$conditions <- conceptCohort(
+  cdm = cdm,
+  conceptSet = list(
+    hypertension = 4112343L,
+    diabetes = 260139L,
+    cardiovascular_disease = 372328L
+  ),
+  name = "conditions"
+)
+```
 
-<!-- - From now on we will use the option (`demographics = FALSE`) to only focus on the part of the characterisation of interest. -->
+- From now on we will use the arguments `demographics = FALSE` and `counts = FALSE` to only focus on the part of the characterisation of interest.
 
-## Prior conditions
+## Summarise cohort characteristics
 
-## Number of visit before
+```{r}
+result <- cdm$my_cohort |>
+  summariseCharacteristics(
+    demographics = FALSE, counts = FALSE,
+    cohortIntersectFlag = list(
+      "Conditions any time prior" = list(
+        targetCohortTable = "conditions",
+        window = c(-Inf, -1)
+      )
+    )
+  )
+```
 
-## Time to prior vaccination
+. . .
 
-<!-- ## Plots -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result)
+```
+:::
 
-<!-- . . . -->
+## Summarise cohort characteristics
 
-<!-- you can obtain a plot of the variable you want from the summariseCharacteristics using the `plotCharacteristics` function -->
+. . .
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- cdm$sinusitis |> -->
-<!--   summariseCharacteristics() |> -->
-<!--   filter(variable_name == "Age" & strata_level == "overall") -->
+Now we will add the number of visit in the prior year:
 
-<!-- plotCharacteristics(result = result, plotStyle = "boxplot") -->
-<!-- ``` -->
+. . .
 
-<!-- ## Plots -->
+```{r}
+result <- cdm$my_cohort |>
+  summariseCharacteristics(
+    demographics = FALSE, counts = FALSE,
+    tableIntersectCount = list(
+      "Visits in the prior year" = list(
+        tableName = "visit_occurrence",
+        window = c(-365, -1)
+      )
+    )
+  )
+```
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- cdm$sinusitis |> -->
-<!--   summariseCharacteristics() |> -->
-<!--   filter(variable_name == "Age" & estimate_name == "median") -->
+. . .
 
-<!-- plotCharacteristics(result = result, -->
-<!--                     plotStyle = "barplot", -->
-<!--                     facet = "cohort_name", -->
-<!--                     colour = "cdm_name") -->
-<!-- ``` -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result)
+```
+:::
 
-<!-- ## Plots -->
+## Summarise cohort characteristics
 
-<!-- . . . -->
+. . .
 
-<!-- these are ggplot object and are compatible with the usual ggplot command for editing. -->
+We could also include time to a prior vaccination, in this case we will define vaccination using a conceptSet:
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- cdm$sinusitis |> -->
-<!--   summariseCharacteristics() |> -->
-<!--   filter(variable_name == "Age" & estimate_name == "median") -->
+. . .
 
-<!-- plotCharacteristics(result = result, -->
-<!--                     plotStyle = "barplot", -->
-<!--                     facet = "cohort_name", -->
-<!--                     colour = "cdm_name") + -->
-<!--   ggtitle("Median age of the cohort") -->
-<!-- ``` -->
+```{r}
+result <- cdm$my_cohort |>
+  summariseCharacteristics(
+    demographics = FALSE, counts = FALSE,
+    conceptIntersectDays = list(
+      "Time to prior vaccines" = list(
+        conceptSet = list(vaccine1 = 1127433L, vaccine2 = 40213160L),
+        window = c(-Inf, -1),
+        order = "last"
+      )
+    )
+  )
+```
 
+. . .
 
-<!-- ## SummariseLargeScaleCharacteristics -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result)
+```
+:::
 
-<!-- . . . -->
+## Summarise cohort characteristics
 
-<!-- Sometimes we might want to summarise all clinical events for the cohorts for different time window, we can do this with `SummariseLargeScaleCharacteristics` -->
+We have seen that by default the estimates that are calculated are:
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- cdm$sinusitis |> -->
-<!--   summariseLargeScaleCharacteristics( -->
-<!--     window = list(c(-Inf, -1), c(1, Inf)), -->
-<!--     eventInWindow = "condition_occurrence", -->
-<!--     minimumFrequency = 0.05 -->
-<!--   ) -->
+- `count` and `percentage` for binary and categorical variables.
 
-<!-- glimpse(result) -->
-<!-- ``` -->
+- `min`, `q25`, `median`, `q75`, `max`, `mean` and `sd` for numeric, integer and date variables.
 
-<!-- ## SummariseLargeScaleCharacteristics -->
+. . .
 
-<!-- . . . -->
+But this can be changed using the estimates argument.
 
-<!-- `tableLargeScaleCharacteristics` for tidy table -->
+## Summarise cohort characteristics
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- tableTopLargeScaleCharacteristics(result = result, topConcepts = 5) -->
-<!-- ``` -->
+```{r}
+result <- cdm$my_cohort |>
+  summariseCharacteristics(
+    demographics = FALSE, counts = FALSE,
+    conceptIntersectDays = list(
+      "Time to prior vaccines" = list(
+        conceptSet = list(vaccine1 = 1127433L, vaccine2 = 40213160L),
+        window = c(-Inf, -1),
+        order = "last"
+      )
+    ),
+    estimates = list(concept_intersect_days = c("q25", "median", "q75"))
+  )
+```
 
-<!-- ## SummariseCohortOverlap -->
+. . .
 
-<!-- . . . -->
+:::{.scroll}
+```{r}
+tableCharacteristics(result = result)
+```
+:::
 
-<!-- When creating multiple cohort, we might be interested in the overlap of individuals between those cohorts. `SummariseCohortOverlap` does this for you. -->
+## Summarise cohort characteristics
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- cdm$sinusitis |> -->
-<!--   summariseCohortOverlap() -->
+```{r}
+result <- summariseCharacteristics(
+  cohort = cdm$my_cohort,
+  estimates = list(age = "density")
+)
+```
 
-<!-- glimpse(result) -->
-<!-- ``` -->
+. . .
 
-<!-- ## SummariseCohortTiming -->
+```{r}
+result |>
+  filter(variable_name == "Age") |>
+  plotCharacteristics(
+    colour = "cohort_name",
+    plotType = "densityplot"
+  )
+```
 
-<!-- . . . -->
+## Summarise large scale characteristics
 
-<!-- When creating multiple cohort, we might be interested in timing of entry between cohorts. `SummariseCohortTiming` does this for you. -->
+Large scale characterisation is very useful to characterise cohorts in a **data driven** way. You will just need to define tables and windows.
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- result <- cdm$sinusitis |> -->
-<!--   summariseCohortTiming(restrictToFirstEntry = TRUE) -->
+. . .
 
-<!-- glimpse(result) -->
-<!-- ``` -->
+The tables need to be classified into two categories:
 
-<!-- ## SummariseCohortOverlap -->
+- **event**: We are only interest whether the 'start' of the event is within the window of interest (e.g. start of the drug -> `drug_exposure_start_date`, start of the condition -> `condition_start_date`).
 
-<!-- . . . -->
+- **episode**: We are interested to see whether the any day within the 'start' and the 'end' of the episode is within the window of interest.
 
-<!-- Again can get a table with `tableCohortTiming` -->
+## Summarise large scale characteristics
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- tableCohortTiming(result = result, -->
-<!--                   timeScale = "years",  -->
-<!--                   uniqueCombinations = FALSE) -->
-<!-- ``` -->
+```{r}
+result <- summariseLargeScaleCharacteristics(
+  cohort = cdm$my_cohort,
+  episodeInWindow = "drug_exposure",
+  eventInWindow = "condition_occurrence",
+  window = list(c(-365, -1), c(1, 365))
+)
+```
 
-<!-- ## plotCohortOverlap -->
+## Summarise large scale characteristics
 
-<!-- . . . -->
+:::{.scroll}
+```{r}
+tableLargeScaleCharacteristics(
+  result = result
+)
+```
+:::
 
-<!-- Again can get a plot with `plotCohortTiming` -->
+## Summarise large scale characteristics
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- plotCohortTiming( -->
-<!--   result = result, -->
-<!--   plotType = "boxplot", -->
-<!--   timeScale = "years", -->
-<!--   uniqueCombinations = FALSE -->
-<!-- ) -->
+:::{.scroll}
+```{r}
+tableLargeScaleCharacteristics(
+  result = result,
+  compareBy = "cohort_name"
+)
+```
+:::
 
-<!-- ``` -->
+## Summarise large scale characteristics
 
-<!-- ## plotCohortOverlap -->
+:::{.scroll}
+```{r}
+tableLargeScaleCharacteristics(
+  result = result,
+  compareBy = "cohort_name",
+  smdReference = "sinusitis"
+)
+```
+:::
 
-<!-- . . . -->
+## Summarise large scale characteristics
 
-<!-- Or return a densityplot -->
+:::{.scroll}
+```{r}
+tableLargeScaleCharacteristics(
+  result = result,
+  compareBy = "variable_level",
+  smdReference = "-365 to -1"
+)
+```
+:::
 
-<!-- ```{r, echo = T, eval = T} -->
-<!-- plotCohortTiming( -->
-<!--   result = result, -->
-<!--   plotType = "densityplot", -->
-<!--   timeScale = "years", -->
-<!--   uniqueCombinations = FALSE -->
-<!-- ) -->
-<!-- ``` -->
+## Summarise large scale characteristics
 
-<!-- ## Your Turn -->
+:::{.scroll}
+```{r}
+tableTopLargeScaleCharacteristics(result = result)
+```
+:::
 
-<!-- Can you get the large scale characteristics for drug exposure table with for the new_sinusitis cohort table with time window anytime prior. -->
+## Summarise large scale characteristics
 
-<!-- <details> -->
+```{r}
+plotComparedLargeScaleCharacteristics(
+  result = result,
+  colour = "variable_level",
+  reference = "-365 to -1",
+  facet = c("cohort_name", "table_name")
+)
+```
 
-<!-- <summary>💡 Click to see solution</summary> -->
+## Summarise large scale characteristics
 
-<!-- ```{r, eval = TRUE} -->
-<!-- result <- cdm$new_sinusitis |> -->
-<!--   summariseLargeScaleCharacteristics( -->
-<!--     window = list(c(-Inf, -1)), -->
-<!--     eventInWindow = "drug_exposure", -->
-<!--     minimumFrequency = 0.05 -->
-<!--   ) -->
-<!-- tableTopLargeScaleCharacteristics(result = result, topConcepts = 5) -->
-<!-- ``` -->
-<!-- </details> -->
+```{r}
+plotComparedLargeScaleCharacteristics(
+  result = result,
+  colour = "variable_level",
+  reference = "-365 to -1",
+  facet = c("cohort_name", "table_name")
+) |>
+  ggplotly()
+```
+
+## Summarise large scale characteristics
+
+By default the large scale characterisation is run using the standard concept id (e.g. drug_concept_id), but you can also run it using a pair of standard and source concepts with the option: `includeSource = TRUE`.
+
+. . .
+
+```{r}
+result <- summariseLargeScaleCharacteristics(
+  cohort = cdm$my_cohort,
+  episodeInWindow = "drug_exposure",
+  eventInWindow = "condition_occurrence",
+  window = list(c(-365, -1), c(1, 365)),
+  includeSource = TRUE
+)
+```
+
+## Summarise large scale characteristics
+
+:::{.scroll}
+```{r}
+tableLargeScaleCharacteristics(result = result)
+```
+:::
+
+## Summarise large scale characteristics
+
+NOTE that by default any concept with a smaller frequency than 0.5% (0.005) is trimmed from the results to avoid exporting not meaningful percentages. This can be controlled by the argument `minimumFrequency`. Set `minimumFrequency = 0` if you want to export the percentage of every single concept (suppress rules will still apply and under minCellCount counts will be removed). Also you can set a higher threshold if you are only interested in high prevalent covariates. Computationally this won't make a difference so in general it is not recommended to change this value unless you want to set `minimumFrequency = 0`.
+
+. . .
+
+Finally, you can also exclude concepts from the search, by default the concept ID = `0` is excluded (`excludedCodes = c(0)`).
 
 ## CohortCharacteristics
 
 ::::: {style="display: flex; align-items: center; justify-content: space-between;"}
 ::: {style="flex: 1;"}
-👉 [**Packages website**](https://darwin-eu-dev.github.io/CohortCharacteristics)\
+👉 [**Packages website**](https://darwin-eu.github.io/CohortCharacteristics)\
 👉 [**CRAN link**](https://cran.r-project.org/web/packages/CohortCharacteristics)\
 👉 [**Manual**](https://cran.r-project.org/web/packages/CohortCharacteristics/CohortCharacteristics.pdf)
 
