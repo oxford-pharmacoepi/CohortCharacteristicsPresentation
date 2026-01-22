@@ -18,35 +18,266 @@
     "href": "index.html#lets-get-started",
     "title": "CohortCharacteristics",
     "section": "Let’s get started",
-    "text": "Let’s get started\n\nlibrary(CohortCharacteristics)\nlibrary(omock)\nlibrary(CohortConstructor)\nlibrary(visOmopResults)\nlibrary(dplyr)\nlibrary(PatientProfiles)"
+    "text": "Let’s get started\n\nlibrary(CohortCharacteristics)\nlibrary(omock)\nlibrary(CohortConstructor)\nlibrary(visOmopResults)\nlibrary(dplyr)\nlibrary(PatientProfiles)\nlibrary(plotly)"
   },
   {
     "objectID": "index.html#lets-get-started-1",
     "href": "index.html#lets-get-started-1",
     "title": "CohortCharacteristics",
     "section": "Let’s get started",
-    "text": "Let’s get started\nFirst we will create a cdm_reference from GiBleed database:\n\n\ncdm &lt;- mockCdmFromDataset(datasetName = \"GiBleed\", source = \"duckdb\")\ncdm"
+    "text": "Let’s get started\nFirst we will create a cdm_reference from GiBleed database:\n\n\ncdm &lt;- mockCdmFromDataset(datasetName = \"GiBleed\", source = \"duckdb\")\n\n\ncdm\n\n\n\n\n── # OMOP CDM reference (duckdb) of GiBleed ────────────────────────────────────────────────────────────────────────────\n\n\n• omop tables: care_site, cdm_source, concept, concept_ancestor, concept_class, concept_relationship, concept_synonym,\ncondition_era, condition_occurrence, cost, death, device_exposure, domain, dose_era, drug_era, drug_exposure,\ndrug_strength, fact_relationship, location, measurement, metadata, note, note_nlp, observation, observation_period,\npayer_plan_period, person, procedure_occurrence, provider, relationship, source_to_concept_map, specimen, visit_detail,\nvisit_occurrence, vocabulary\n\n\n• cohort tables: -\n\n\n• achilles tables: -\n\n\n• other tables: -"
   },
   {
-    "objectID": "index.html#prior-conditions",
-    "href": "index.html#prior-conditions",
+    "objectID": "index.html#workflow",
+    "href": "index.html#workflow",
     "title": "CohortCharacteristics",
-    "section": "Prior conditions",
-    "text": "Prior conditions"
+    "section": "Workflow",
+    "text": "Workflow\nWe have three types of functions:\n\nsummarise: these functions produce an standardised output to summarise a cohort. This standard output is called summarised_result.\nplot: these functions produce plots (currently, only ggplot, but working to implement plotly) from a summarised_result object.\ntable: these functions produce tables (gt and flextable) from a summarised_result object."
   },
   {
-    "objectID": "index.html#number-of-visit-before",
-    "href": "index.html#number-of-visit-before",
+    "objectID": "index.html#contents",
+    "href": "index.html#contents",
     "title": "CohortCharacteristics",
-    "section": "Number of visit before",
-    "text": "Number of visit before"
+    "section": "Contents",
+    "text": "Contents\n\nSummarise cohort entries\nSummarise cohort timing\nSummarise cohort overlap\nSummarise cohort characteristics\nSummarise large scale characteristics"
   },
   {
-    "objectID": "index.html#time-to-prior-vaccination",
-    "href": "index.html#time-to-prior-vaccination",
+    "objectID": "index.html#set-the-style",
+    "href": "index.html#set-the-style",
     "title": "CohortCharacteristics",
-    "section": "Time to prior vaccination",
-    "text": "Time to prior vaccination"
+    "section": "Set the style",
+    "text": "Set the style\n\nsetGlobalTableOptions(style = \"darwin\")\nsetGlobalPlotOptions(style = \"darwin\")"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries",
+    "href": "index.html#summarise-cohort-entries",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\nWe can start instantiating a cohort:\n\ncdm$my_cohort &lt;- conceptCohort(\n  cdm = cdm,\n  conceptSet = list(\n    viral_sinusitis = 40481087L,\n    sinusitis = 4283893L,\n    chronic_sinusitis = 257012L\n  ),\n  name = \"my_cohort\"\n)\ncohortCount(cdm$my_cohort)\n\n# A tibble: 3 × 3\n  cohort_definition_id number_records number_subjects\n                 &lt;int&gt;          &lt;int&gt;           &lt;int&gt;\n1                    1            825             812\n2                    2           1001             833\n3                    3          17268            2686"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries-1",
+    "href": "index.html#summarise-cohort-entries-1",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\n\nresult &lt;- summariseCohortCount(cdm$my_cohort)\n\n\n\ntableCohortCount(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\nVariable name\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nGiBleed\nNumber records\nN\n825\n1,001\n17,268\n\n\n\nNumber subjects\nN\n812\n833\n2,686"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries-2",
+    "href": "index.html#summarise-cohort-entries-2",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\n\nresult |&gt;\n  filter(variable_name == \"Number records\") |&gt;\n  plotCohortCount(colour = \"cohort_name\")"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries-3",
+    "href": "index.html#summarise-cohort-entries-3",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\nNow we can apply some inclusion criteria:\n\n\ncdm$my_cohort &lt;- cdm$my_cohort |&gt;\n  requireAge(ageRange = c(0, 15))\ncohortCount(cdm$my_cohort)\n\n# A tibble: 3 × 3\n  cohort_definition_id number_records number_subjects\n                 &lt;int&gt;          &lt;int&gt;           &lt;int&gt;\n1                    1            260             260\n2                    2            278             265\n3                    3           4624            2223\n\n\n\n\n\ncdm$my_cohort &lt;- cdm$my_cohort |&gt;\n  requirePriorObservation(minPriorObservation = 365)\ncohortCount(cdm$my_cohort)\n\n# A tibble: 3 × 3\n  cohort_definition_id number_records number_subjects\n                 &lt;int&gt;          &lt;int&gt;           &lt;int&gt;\n1                    1            243             243\n2                    2            260             249\n3                    3           4360            2168"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries-4",
+    "href": "index.html#summarise-cohort-entries-4",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\nThis data has been stored in the attrition attribute\n\nattrition(cdm$my_cohort) |&gt;\n  glimpse()\n\nRows: 18\nColumns: 7\n$ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3\n$ number_records       &lt;int&gt; 825, 825, 825, 825, 260, 243, 1001, 1001, 1001, 1001, 278, 260, 17268, 17268, 17268, 1726…\n$ number_subjects      &lt;int&gt; 812, 812, 812, 812, 260, 243, 833, 833, 833, 833, 265, 249, 2686, 2686, 2686, 2686, 2223,…\n$ reason_id            &lt;int&gt; 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6\n$ reason               &lt;chr&gt; \"Initial qualifying events\", \"Record in observation\", \"Not missing record date\", \"Merge o…\n$ excluded_records     &lt;int&gt; 0, 0, 0, 0, 565, 17, 0, 0, 0, 0, 723, 18, 0, 0, 0, 0, 12644, 264\n$ excluded_subjects    &lt;int&gt; 0, 0, 0, 0, 552, 17, 0, 0, 0, 0, 568, 16, 0, 0, 0, 0, 463, 55"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries-5",
+    "href": "index.html#summarise-cohort-entries-5",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\n\nresult &lt;- summariseCohortAttrition(cohort = cdm$my_cohort)\n\n\n\n\ntableCohortAttrition(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReason\n\nVariable name\n\n\n\nnumber_records\nnumber_subjects\nexcluded_records\nexcluded_subjects\n\n\n\n\nGiBleed; chronic_sinusitis\n\n\nInitial qualifying events\n825\n812\n0\n0\n\n\nRecord in observation\n825\n812\n0\n0\n\n\nNot missing record date\n825\n812\n0\n0\n\n\nMerge overlapping records\n825\n812\n0\n0\n\n\nAge requirement: 0 to 15\n260\n260\n565\n552\n\n\nPrior observation requirement: 365 days\n243\n243\n17\n17\n\n\nGiBleed; sinusitis\n\n\nInitial qualifying events\n1,001\n833\n0\n0\n\n\nRecord in observation\n1,001\n833\n0\n0\n\n\nNot missing record date\n1,001\n833\n0\n0\n\n\nMerge overlapping records\n1,001\n833\n0\n0\n\n\nAge requirement: 0 to 15\n278\n265\n723\n568\n\n\nPrior observation requirement: 365 days\n260\n249\n18\n16\n\n\nGiBleed; viral_sinusitis\n\n\nInitial qualifying events\n17,268\n2,686\n0\n0\n\n\nRecord in observation\n17,268\n2,686\n0\n0\n\n\nNot missing record date\n17,268\n2,686\n0\n0\n\n\nMerge overlapping records\n17,268\n2,686\n0\n0\n\n\nAge requirement: 0 to 15\n4,624\n2,223\n12,644\n463\n\n\nPrior observation requirement: 365 days\n4,360\n2,168\n264\n55"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-entries-6",
+    "href": "index.html#summarise-cohort-entries-6",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort entries",
+    "text": "Summarise cohort entries\n\nplotCohortAttrition(result = result, type = \"png\")"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-overlap",
+    "href": "index.html#summarise-cohort-overlap",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort overlap",
+    "text": "Summarise cohort overlap\nIt can be useful to identify the individuals that are in two cohorts:\n\n\nresult &lt;- summariseCohortOverlap(cohort = cdm$my_cohort)\n\n\n\n\ntableCohortOverlap(result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCohort name reference\nCohort name comparator\nEstimate name\n\nVariable name\n\n\n\nOnly in reference cohort\nIn both cohorts\nOnly in comparator cohort\n\n\n\n\nGiBleed\n\n\nchronic_sinusitis\nsinusitis\nN (%)\n103 (29.26%)\n140 (39.77%)\n109 (30.97%)\n\n\n\nviral_sinusitis\nN (%)\n51 (2.30%)\n192 (8.65%)\n1,976 (89.05%)\n\n\nsinusitis\nviral_sinusitis\nN (%)\n52 (2.34%)\n197 (8.87%)\n1,971 (88.78%)"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-overlap-1",
+    "href": "index.html#summarise-cohort-overlap-1",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort overlap",
+    "text": "Summarise cohort overlap\n\nplotCohortOverlap(result = result)"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-overlap-2",
+    "href": "index.html#summarise-cohort-overlap-2",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort overlap",
+    "text": "Summarise cohort overlap\nBy default the overlap is done at the subject_id level, but we can customise this and use more columns:\n\n\nresult &lt;- summariseCohortOverlap(cohort = cdm$my_cohort, overlapBy = c(\"subject_id\", \"cohort_start_date\"))\n\n\n\n\ntableCohortOverlap(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCohort name reference\nCohort name comparator\nEstimate name\n\nVariable name\n\n\n\nOnly in reference cohort\nIn both cohorts\nOnly in comparator cohort\n\n\n\n\nGiBleed\n\n\nchronic_sinusitis\nsinusitis\nN (%)\n243 (48.31%)\n0 (0.00%)\n260 (51.69%)\n\n\n\nviral_sinusitis\nN (%)\n243 (5.28%)\n0 (0.00%)\n4,360 (94.72%)\n\n\nsinusitis\nviral_sinusitis\nN (%)\n260 (5.63%)\n0 (0.00%)\n4,360 (94.37%)"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics",
+    "href": "index.html#summarise-cohort-characteristics",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\nTo get summary of the characteristics for your cohort you can use summariseCharacteristics():\n\n\n\nresult &lt;- summariseCharacteristics(cohort = cdm$my_cohort)"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-1",
+    "href": "index.html#summarise-cohort-characteristics-1",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\n\ntableCharacteristics(result = result, header = \"cohort_name\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\nVariable name\nVariable level\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nGiBleed\nNumber records\n–\nN\n243\n260\n4,360\n\n\n\nNumber subjects\n–\nN\n243\n249\n2,168\n\n\n\nCohort start date\n–\nMedian [Q25 - Q75]\n1969-04-01 [1957-12-24 - 1980-08-02]\n1970-10-06 [1957-09-05 - 1981-07-24]\n1969-04-22 [1957-12-03 - 1979-05-19]\n\n\n\n\n\nRange\n1911-12-12 to 1998-09-29\n1911-10-31 to 1998-09-01\n1910-10-21 to 1999-11-02\n\n\n\nCohort end date\n–\nMedian [Q25 - Q75]\n1969-10-19 [1958-09-07 - 1981-06-23]\n1971-01-08 [1957-10-31 - 1981-10-30]\n1969-05-08 [1957-12-15 - 1979-06-01]\n\n\n\n\n\nRange\n1911-12-12 to 2011-09-26\n1912-01-23 to 1998-10-13\n1910-11-04 to 1999-11-23\n\n\n\nAge\n–\nMedian [Q25 - Q75]\n8 [4 - 12]\n8 [4 - 12]\n8 [4 - 12]\n\n\n\n\n\nMean (SD)\n7.92 (4.37)\n8.10 (4.32)\n7.92 (4.30)\n\n\n\n\n\nRange\n1 to 15\n1 to 15\n1 to 15\n\n\n\nSex\nFemale\nN (%)\n124 (51.03%)\n142 (54.62%)\n2,206 (50.60%)\n\n\n\n\nMale\nN (%)\n119 (48.97%)\n118 (45.38%)\n2,154 (49.40%)\n\n\n\nPrior observation\n–\nMedian [Q25 - Q75]\n3,052 [1,657 - 4,528]\n3,118 [1,795 - 4,487]\n3,068 [1,714 - 4,407]\n\n\n\n\n\nMean (SD)\n3,079.56 (1,600.95)\n3,142.19 (1,562.49)\n3,076.48 (1,574.41)\n\n\n\n\n\nRange\n388 to 5,832\n398 to 5,815\n365 to 5,842\n\n\n\nFuture observation\n–\nMedian [Q25 - Q75]\n17,643 [13,899 - 22,168]\n17,557 [13,719 - 22,300]\n17,884 [14,241 - 21,779]\n\n\n\n\n\nMean (SD)\n18,330.67 (5,753.00)\n18,518.75 (6,356.40)\n18,457.77 (5,674.75)\n\n\n\n\n\nRange\n6,986 to 39,045\n7,014 to 39,087\n6,530 to 39,020\n\n\n\nDays in cohort\n–\nMedian [Q25 - Q75]\n1 [1 - 1]\n57 [36 - 102]\n15 [8 - 22]\n\n\n\n\n\nMean (SD)\n317.64 (1,762.31)\n79.59 (62.56)\n15.02 (5.68)\n\n\n\n\n\nRange\n1 to 13,234\n15 to 428\n7 to 23\n\n\n\nDays to next record\n–\nMedian [Q25 - Q75]\n–\n1,266 [854 - 2,302]\n1,115 [488 - 1,957]\n\n\n\n\n\nMean (SD)\n–\n1,679.00 (1,078.99)\n1,353.50 (1,058.41)\n\n\n\n\n\nRange\n–\n636 to 4,072\n35 to 5,227"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-2",
+    "href": "index.html#summarise-cohort-characteristics-2",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\nBy default we have seen how demographics are characterised, by we can do more.\n\nresult &lt;- summariseCharacteristics(\n  cohort = cdm$my_cohort,\n  ageGroup = list(c(0, 4), c(5, 9), c(10, 14), c(15, Inf))\n)\n\n\n\n\ntableCharacteristics(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\n\n\n\n\n\nGiBleed\n\n\n\nVariable name\nVariable level\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nNumber records\n–\nN\n243\n260\n4,360\n\n\nNumber subjects\n–\nN\n243\n249\n2,168\n\n\nCohort start date\n–\nMedian [Q25 - Q75]\n1969-04-01 [1957-12-24 - 1980-08-02]\n1970-10-06 [1957-09-05 - 1981-07-24]\n1969-04-22 [1957-12-03 - 1979-05-19]\n\n\n\n\nRange\n1911-12-12 to 1998-09-29\n1911-10-31 to 1998-09-01\n1910-10-21 to 1999-11-02\n\n\nCohort end date\n–\nMedian [Q25 - Q75]\n1969-10-19 [1958-09-07 - 1981-06-23]\n1971-01-08 [1957-10-31 - 1981-10-30]\n1969-05-08 [1957-12-15 - 1979-06-01]\n\n\n\n\nRange\n1911-12-12 to 2011-09-26\n1912-01-23 to 1998-10-13\n1910-11-04 to 1999-11-23\n\n\nAge\n–\nMedian [Q25 - Q75]\n8 [4 - 12]\n8 [4 - 12]\n8 [4 - 12]\n\n\n\n\nMean (SD)\n7.92 (4.37)\n8.10 (4.32)\n7.92 (4.30)\n\n\n\n\nRange\n1 to 15\n1 to 15\n1 to 15\n\n\nAge group\n0 to 4\nN (%)\n70 (28.81%)\n70 (26.92%)\n1,180 (27.06%)\n\n\n\n5 to 9\nN (%)\n72 (29.63%)\n78 (30.00%)\n1,471 (33.74%)\n\n\n\n10 to 14\nN (%)\n90 (37.04%)\n96 (36.92%)\n1,424 (32.66%)\n\n\n\n15 or above\nN (%)\n11 (4.53%)\n16 (6.15%)\n285 (6.54%)\n\n\nSex\nFemale\nN (%)\n124 (51.03%)\n142 (54.62%)\n2,206 (50.60%)\n\n\n\nMale\nN (%)\n119 (48.97%)\n118 (45.38%)\n2,154 (49.40%)\n\n\nPrior observation\n–\nMedian [Q25 - Q75]\n3,052 [1,657 - 4,528]\n3,118 [1,795 - 4,487]\n3,068 [1,714 - 4,407]\n\n\n\n\nMean (SD)\n3,079.56 (1,600.95)\n3,142.19 (1,562.49)\n3,076.48 (1,574.41)\n\n\n\n\nRange\n388 to 5,832\n398 to 5,815\n365 to 5,842\n\n\nFuture observation\n–\nMedian [Q25 - Q75]\n17,643 [13,899 - 22,168]\n17,557 [13,719 - 22,300]\n17,884 [14,241 - 21,779]\n\n\n\n\nMean (SD)\n18,330.67 (5,753.00)\n18,518.75 (6,356.40)\n18,457.77 (5,674.75)\n\n\n\n\nRange\n6,986 to 39,045\n7,014 to 39,087\n6,530 to 39,020\n\n\nDays in cohort\n–\nMedian [Q25 - Q75]\n1 [1 - 1]\n57 [36 - 102]\n15 [8 - 22]\n\n\n\n\nMean (SD)\n317.64 (1,762.31)\n79.59 (62.56)\n15.02 (5.68)\n\n\n\n\nRange\n1 to 13,234\n15 to 428\n7 to 23\n\n\nDays to next record\n–\nMedian [Q25 - Q75]\n–\n1,266 [854 - 2,302]\n1,115 [488 - 1,957]\n\n\n\n\nMean (SD)\n–\n1,679.00 (1,078.99)\n1,353.50 (1,058.41)\n\n\n\n\nRange\n–\n636 to 4,072\n35 to 5,227"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-3",
+    "href": "index.html#summarise-cohort-characteristics-3",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\nWe can stratify the characterisation using columns, for example we will characterise the cohort sinusitis by sex.\n\nresult &lt;- cdm$my_cohort |&gt;\n  addSex() |&gt;\n  summariseCharacteristics(\n    cohortId = \"sinusitis\",\n    strata = \"sex\",\n    ageGroup = list(c(0, 4), c(5, 9), c(10, 14), c(15, Inf))\n  )\n\n\n\n\ntableCharacteristics(result = result, header = \"sex\", hide = c(\"cdm_name\", \"cohort_name\", \"table_name\"))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable name\nVariable level\nEstimate name\n\nSex\n\n\n\noverall\nFemale\nMale\n\n\n\n\nNumber records\n–\nN\n260\n142\n118\n\n\nNumber subjects\n–\nN\n249\n136\n113\n\n\nCohort start date\n–\nMedian [Q25 - Q75]\n1970-10-06 [1957-09-05 - 1981-07-24]\n1968-07-14 [1957-08-19 - 1981-01-18]\n1972-09-21 [1958-01-04 - 1982-02-27]\n\n\n\n\nRange\n1911-10-31 to 1998-09-01\n1912-12-29 to 1998-09-01\n1911-10-31 to 1997-05-28\n\n\nCohort end date\n–\nMedian [Q25 - Q75]\n1971-01-08 [1957-10-31 - 1981-10-30]\n1968-08-30 [1957-10-14 - 1981-03-30]\n1973-02-16 [1958-02-21 - 1982-07-11]\n\n\n\n\nRange\n1912-01-23 to 1998-10-13\n1913-08-31 to 1998-10-13\n1912-01-23 to 1997-07-02\n\n\nAge\n–\nMedian [Q25 - Q75]\n8 [4 - 12]\n7 [4 - 11]\n9 [5 - 12]\n\n\n\n\nMean (SD)\n8.10 (4.32)\n7.63 (4.43)\n8.68 (4.12)\n\n\n\n\nRange\n1 to 15\n1 to 15\n1 to 15\n\n\nAge group\n0 to 4\nN (%)\n70 (26.92%)\n46 (32.39%)\n24 (20.34%)\n\n\n\n5 to 9\nN (%)\n78 (30.00%)\n41 (28.87%)\n37 (31.36%)\n\n\n\n10 to 14\nN (%)\n96 (36.92%)\n45 (31.69%)\n51 (43.22%)\n\n\n\n15 or above\nN (%)\n16 (6.15%)\n10 (7.04%)\n6 (5.08%)\n\n\nSex\nFemale\nN (%)\n142 (54.62%)\n142 (100.00%)\n–\n\n\n\nMale\nN (%)\n118 (45.38%)\n–\n118 (100.00%)\n\n\nPrior observation\n–\nMedian [Q25 - Q75]\n3,118 [1,795 - 4,487]\n2,716 [1,605 - 4,279]\n3,402 [2,032 - 4,602]\n\n\n\n\nMean (SD)\n3,142.19 (1,562.49)\n2,975.84 (1,598.37)\n3,342.37 (1,500.52)\n\n\n\n\nRange\n398 to 5,815\n398 to 5,815\n517 to 5,766\n\n\nFuture observation\n–\nMedian [Q25 - Q75]\n17,557 [13,719 - 22,300]\n18,181 [13,841 - 22,321]\n16,902 [13,182 - 22,228]\n\n\n\n\nMean (SD)\n18,518.75 (6,356.40)\n18,904.92 (6,314.96)\n18,054.03 (6,401.80)\n\n\n\n\nRange\n7,014 to 39,087\n7,014 to 38,795\n7,777 to 39,087\n\n\nDays in cohort\n–\nMedian [Q25 - Q75]\n57 [36 - 102]\n57 [36 - 92]\n64 [36 - 120]\n\n\n\n\nMean (SD)\n79.59 (62.56)\n73.57 (56.46)\n86.84 (68.73)\n\n\n\n\nRange\n15 to 428\n15 to 323\n15 to 428\n\n\nDays to next record\n–\nMedian [Q25 - Q75]\n1,266 [854 - 2,302]\n1,396 [810 - 1,878]\n1,266 [920 - 2,692]\n\n\n\n\nMean (SD)\n1,679.00 (1,078.99)\n1,455.17 (780.82)\n1,947.60 (1,408.23)\n\n\n\n\nRange\n636 to 4,072\n636 to 2,648\n788 to 4,072"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-4",
+    "href": "index.html#summarise-cohort-characteristics-4",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\nWe can also summarise the prior conditions. We will need either a codelist of conditions or a prior instantiated cohort. In this case we will create a cohort:\n\ncdm$conditions &lt;- conceptCohort(\n  cdm = cdm,\n  conceptSet = list(\n    hypertension = 4112343L,\n    diabetes = 260139L,\n    cardiovascular_disease = 372328L\n  ),\n  name = \"conditions\"\n)\n\n\nFrom now on we will use the arguments demographics = FALSE and counts = FALSE to only focus on the part of the characterisation of interest."
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-5",
+    "href": "index.html#summarise-cohort-characteristics-5",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\nresult &lt;- cdm$my_cohort |&gt;\n  summariseCharacteristics(\n    demographics = FALSE, counts = FALSE,\n    cohortIntersectFlag = list(\n      \"Conditions any time prior\" = list(\n        targetCohortTable = \"conditions\",\n        window = c(-Inf, -1)\n      )\n    )\n  )\n\n\n\n\ntableCharacteristics(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\n\n\n\n\n\nGiBleed\n\n\n\nVariable name\nVariable level\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nConditions any time prior\nHypertension\nN (%)\n94 (38.68%)\n110 (42.31%)\n1,910 (43.81%)\n\n\n\nCardiovascular disease\nN (%)\n148 (60.91%)\n171 (65.77%)\n2,746 (62.98%)\n\n\n\nDiabetes\nN (%)\n90 (37.04%)\n104 (40.00%)\n1,560 (35.78%)"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-6",
+    "href": "index.html#summarise-cohort-characteristics-6",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\nNow we will add the number of visit in the prior year:\n\n\n\nresult &lt;- cdm$my_cohort |&gt;\n  summariseCharacteristics(\n    demographics = FALSE, counts = FALSE,\n    tableIntersectCount = list(\n      \"Visits in the prior year\" = list(\n        tableName = \"visit_occurrence\",\n        window = c(-365, -1)\n      )\n    )\n  )\n\n\n\n\n\ntableCharacteristics(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\n\n\n\n\n\nGiBleed\n\n\n\nVariable name\nVariable level\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nVisits in the prior year\n–\nMedian [Q25 - Q75]\n0.00 [0.00 - 0.00]\n0.00 [0.00 - 0.00]\n0.00 [0.00 - 0.00]\n\n\n\n\nMean (SD)\n0.00 (0.06)\n0.00 (0.06)\n0.00 (0.05)\n\n\n\n\nRange\n0.00 to 1.00\n0.00 to 1.00\n0.00 to 1.00"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-7",
+    "href": "index.html#summarise-cohort-characteristics-7",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\nWe could also include time to a prior vaccination, in this case we will define vaccination using a conceptSet:\n\n\n\nresult &lt;- cdm$my_cohort |&gt;\n  summariseCharacteristics(\n    demographics = FALSE, counts = FALSE,\n    conceptIntersectDays = list(\n      \"Time to prior vaccines\" = list(\n        conceptSet = list(vaccine1 = 1127433L, vaccine2 = 40213160L),\n        window = c(-Inf, -1),\n        order = \"last\"\n      )\n    )\n  )\n\n\n\n\n\ntableCharacteristics(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\n\n\n\n\n\nGiBleed\n\n\n\nVariable name\nVariable level\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nTime to prior vaccines\nVaccine1\nMedian [Q25 - Q75]\n-1,372.00 [-2,048.75 - -600.00]\n-1,520.00 [-2,156.50 - -765.00]\n-1,291.00 [-2,404.00 - -583.00]\n\n\n\n\nMean (SD)\n-1,512.57 (1,078.75)\n-1,681.07 (1,206.77)\n-1,607.13 (1,270.50)\n\n\n\n\nRange\n-5,501.00 to -91.00\n-5,438.00 to -78.00\n-5,457.00 to -5.00\n\n\n\nVaccine2\nMedian [Q25 - Q75]\n-1,399.00 [-2,740.50 - -707.25]\n-1,572.00 [-2,762.00 - -710.75]\n-1,426.50 [-2,610.00 - -722.25]\n\n\n\n\nMean (SD)\n-1,710.87 (1,164.27)\n-1,769.52 (1,197.58)\n-1,695.03 (1,149.73)\n\n\n\n\nRange\n-4,023.00 to -18.00\n-4,009.00 to -1.00\n-4,239.00 to -1.00"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-8",
+    "href": "index.html#summarise-cohort-characteristics-8",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\nWe have seen that by default the estimates that are calculated are:\n\ncount and percentage for binary and categorical variables.\nmin, q25, median, q75, max, mean and sd for numeric, integer and date variables.\n\n\nBut this can be changed using the estimates argument."
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-9",
+    "href": "index.html#summarise-cohort-characteristics-9",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\nresult &lt;- cdm$my_cohort |&gt;\n  summariseCharacteristics(\n    demographics = FALSE, counts = FALSE,\n    conceptIntersectDays = list(\n      \"Time to prior vaccines\" = list(\n        conceptSet = list(vaccine1 = 1127433L, vaccine2 = 40213160L),\n        window = c(-Inf, -1),\n        order = \"last\"\n      )\n    ),\n    estimates = list(concept_intersect_days = c(\"q25\", \"median\", \"q75\"))\n  )\n\n\n\n\ntableCharacteristics(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCDM name\n\n\n\n\n\nGiBleed\n\n\n\nVariable name\nVariable level\nEstimate name\n\nCohort name\n\n\n\nchronic_sinusitis\nsinusitis\nviral_sinusitis\n\n\n\n\nTime to prior vaccines\nVaccine2\nMedian [Q25 - Q75]\n-1,399.00 [-2,740.50 - -707.25]\n-1,572.00 [-2,762.00 - -710.75]\n-1,426.50 [-2,610.00 - -722.25]\n\n\n\nVaccine1\nMedian [Q25 - Q75]\n-1,372.00 [-2,048.75 - -600.00]\n-1,520.00 [-2,156.50 - -765.00]\n-1,291.00 [-2,404.00 - -583.00]"
+  },
+  {
+    "objectID": "index.html#summarise-cohort-characteristics-10",
+    "href": "index.html#summarise-cohort-characteristics-10",
+    "title": "CohortCharacteristics",
+    "section": "Summarise cohort characteristics",
+    "text": "Summarise cohort characteristics\n\nresult &lt;- summariseCharacteristics(\n  cohort = cdm$my_cohort,\n  estimates = list(age = \"density\")\n)\n\n\n\nresult |&gt;\n  filter(variable_name == \"Age\") |&gt;\n  plotCharacteristics(\n    colour = \"cohort_name\",\n    plotType = \"densityplot\"\n  )"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics",
+    "href": "index.html#summarise-large-scale-characteristics",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\nLarge scale characterisation is very useful to characterise cohorts in a data driven way. You will just need to define tables and windows.\n\nThe tables need to be classified into two categories:\n\nevent: We are only interest whether the ‘start’ of the event is within the window of interest (e.g. start of the drug -&gt; drug_exposure_start_date, start of the condition -&gt; condition_start_date).\nepisode: We are interested to see whether the any day within the ‘start’ and the ‘end’ of the episode is within the window of interest."
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-1",
+    "href": "index.html#summarise-large-scale-characteristics-1",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\nresult &lt;- summariseLargeScaleCharacteristics(\n  cohort = cdm$my_cohort,\n  episodeInWindow = \"drug_exposure\",\n  eventInWindow = \"condition_occurrence\",\n  window = list(c(-365, -1), c(1, 365))\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-2",
+    "href": "index.html#summarise-large-scale-characteristics-2",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\n\ntableLargeScaleCharacteristics(\n  result = result\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-3",
+    "href": "index.html#summarise-large-scale-characteristics-3",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\n\ntableLargeScaleCharacteristics(\n  result = result,\n  compareBy = \"cohort_name\"\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-4",
+    "href": "index.html#summarise-large-scale-characteristics-4",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\n\ntableLargeScaleCharacteristics(\n  result = result,\n  compareBy = \"cohort_name\",\n  smdReference = \"sinusitis\"\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-5",
+    "href": "index.html#summarise-large-scale-characteristics-5",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\n\ntableLargeScaleCharacteristics(\n  result = result,\n  compareBy = \"variable_level\",\n  smdReference = \"-365 to -1\"\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-6",
+    "href": "index.html#summarise-large-scale-characteristics-6",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\n\ntableTopLargeScaleCharacteristics(result = result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCohort name\n\n\n\n\n\nchronic_sinusitis\n\n\nsinusitis\n\n\nviral_sinusitis\n\n\n\n\n\nWindow\n\n\n\n\n\n-365 to -1\n\n\n1 to 365\n\n\n-365 to -1\n\n\n1 to 365\n\n\n-365 to -1\n\n\n1 to 365\n\n\n\n\n\nTable name\n\n\n\n\n\ncondition_occurrence\n\n\ndrug_exposure\n\n\ncondition_occurrence\n\n\ndrug_exposure\n\n\ncondition_occurrence\n\n\ndrug_exposure\n\n\ncondition_occurrence\n\n\ndrug_exposure\n\n\ncondition_occurrence\n\n\ndrug_exposure\n\n\ncondition_occurrence\n\n\ndrug_exposure\n\n\n\nTop\n\nType\n\n\n\nevent\nepisode\nevent\nepisode\nevent\nepisode\nevent\nepisode\nevent\nepisode\nevent\nepisode\n\n\n\n\n1\nSinusitis (4283893)  140 (57.6%)\nAmoxicillin 250 MG / Clavulanate 125 MG Oral Tablet (1713671)  41 (16.9%)\nViral sinusitis (40481087)  26 (10.7%)\nAmoxicillin 250 MG / Clavulanate 125 MG Oral Tablet (1713671)  38 (15.6%)\nViral sinusitis (40481087)  24 (9.2%)\npoliovirus vaccine, inactivated (40213160)  29 (11.2%)\nChronic sinusitis (257012)  140 (53.9%)\nAmoxicillin 250 MG / Clavulanate 125 MG Oral Tablet (1713671)  63 (24.2%)\nViral sinusitis (40481087)  413 (9.5%)\npoliovirus vaccine, inactivated (40213160)  404 (9.3%)\nViral sinusitis (40481087)  410 (9.4%)\nAmoxicillin 250 MG / Clavulanate 125 MG Oral Tablet (1713671)  996 (22.8%)\n\n\n2\nAcute bacterial sinusitis (4294548)  103 (42.4%)\nAspirin 81 MG Oral Tablet (19059056)  20 (8.2%)\nAcute viral pharyngitis (4112343)  24 (9.9%)\npoliovirus vaccine, inactivated (40213160)  20 (8.2%)\nOtitis media (372328)  22 (8.5%)\nAspirin 81 MG Oral Tablet (19059056)  21 (8.1%)\nViral sinusitis (40481087)  27 (10.4%)\npoliovirus vaccine, inactivated (40213160)  19 (7.3%)\nAcute viral pharyngitis (4112343)  295 (6.8%)\nAspirin 81 MG Oral Tablet (19059056)  346 (7.9%)\nAcute viral pharyngitis (4112343)  315 (7.2%)\nAspirin 81 MG Oral Tablet (19059056)  326 (7.5%)\n\n\n3\nViral sinusitis (40481087)  21 (8.6%)\npoliovirus vaccine, inactivated (40213160)  20 (8.2%)\nAcute bronchitis (260139)  17 (7.0%)\nAcetaminophen 325 MG Oral Tablet (1127433)  18 (7.4%)\nAcute viral pharyngitis (4112343)  14 (5.4%)\nAcetaminophen 160 MG Oral Tablet (1127078)  17 (6.5%)\nAcute bronchitis (260139)  17 (6.5%)\nAspirin 81 MG Oral Tablet (19059056)  14 (5.4%)\nOtitis media (372328)  295 (6.8%)\nAcetaminophen 160 MG Oral Tablet (1127078)  240 (5.5%)\nOtitis media (372328)  252 (5.8%)\npoliovirus vaccine, inactivated (40213160)  249 (5.7%)\n\n\n4\nOtitis media (372328)  17 (7.0%)\nAcetaminophen 160 MG Oral Tablet (1127078)  13 (5.3%)\nOtitis media (372328)  13 (5.3%)\nAspirin 81 MG Oral Tablet (19059056)  14 (5.8%)\nAcute bronchitis (260139)  10 (3.9%)\nAcetaminophen 325 MG Oral Tablet (1127433)  7 (2.7%)\nAcute viral pharyngitis (4112343)  13 (5.0%)\nAcetaminophen 160 MG Oral Tablet (1127078)  13 (5.0%)\nAcute bronchitis (260139)  236 (5.4%)\nAcetaminophen 325 MG Oral Tablet (1127433)  229 (5.2%)\nAcute bronchitis (260139)  250 (5.7%)\nAcetaminophen 325 MG Oral Tablet (1127433)  238 (5.5%)\n\n\n5\nAcute viral pharyngitis (4112343)  15 (6.2%)\nHaemophilus influenzae type b vaccine, PRP-OMP conjugate (40213314)  7 (2.9%)\nStreptococcal sore throat (28060)  6 (2.5%)\nAcetaminophen 160 MG Oral Tablet (1127078)  11 (4.5%)\nFracture of ankle (4059173)  4 (1.5%)\nAcetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / doxylamine succinate 0.417 MG/ML Oral Solution (40229134)  6 (2.3%)\nOtitis media (372328)  9 (3.5%)\nAcetaminophen 325 MG Oral Tablet (1127433)  13 (5.0%)\nStreptococcal sore throat (28060)  155 (3.6%)\nPenicillin V Potassium 250 MG Oral Tablet (19133873)  180 (4.1%)\nStreptococcal sore throat (28060)  131 (3.0%)\nAcetaminophen 160 MG Oral Tablet (1127078)  218 (5.0%)\n\n\n6\nAcute bronchitis (260139)  8 (3.3%)\nAcetaminophen 325 MG Oral Tablet (1127433)  6 (2.5%)\nFracture of forearm (4278672)  3 (1.2%)\nPenicillin V Potassium 250 MG Oral Tablet (19133873)  10 (4.1%)\nStreptococcal sore throat (28060)  4 (1.5%)\nPenicillin G 375 MG/ML Injectable Solution (19006318)  6 (2.3%)\nStreptococcal sore throat (28060)  9 (3.5%)\nPenicillin V Potassium 250 MG Oral Tablet (19133873)  12 (4.6%)\nSprain of ankle (81151)  86 (2.0%)\nAmoxicillin 250 MG / Clavulanate 125 MG Oral Tablet (1713671)  114 (2.6%)\nSprain of ankle (81151)  75 (1.7%)\nPenicillin V Potassium 250 MG Oral Tablet (19133873)  166 (3.8%)\n\n\n7\nWhiplash injury to neck (4218389)  5 (2.1%)\nAcetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / doxylamine succinate 0.417 MG/ML Oral Solution (40229134)  4 (1.6%)\nSprain of ankle (81151)  3 (1.2%)\nPenicillin G 375 MG/ML Injectable Solution (19006318)  5 (2.1%)\nWhiplash injury to neck (4218389)  4 (1.5%)\nAmoxicillin 250 MG Oral Capsule (19073183)  5 (1.9%)\nSprain of ankle (81151)  4 (1.5%)\nAcetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / doxylamine succinate 0.417 MG/ML Oral Solution (40229134)  7 (2.7%)\nConcussion with no loss of consciousness (378001)  37 (0.8%)\nPenicillin G 375 MG/ML Injectable Solution (19006318)  106 (2.4%)\nConcussion with no loss of consciousness (378001)  38 (0.9%)\nPenicillin G 375 MG/ML Injectable Solution (19006318)  96 (2.2%)\n\n\n8\nStreptococcal sore throat (28060)  4 (1.6%)\nDoxycycline Monohydrate 50 MG Oral Tablet (46233988)  4 (1.6%)\nFracture of ankle (4059173)  2 (0.8%)\nvaricella virus vaccine (40213251)  5 (2.1%)\nConcussion with no loss of consciousness (378001)  2 (0.8%)\nHaemophilus influenzae type b vaccine, PRP-OMP conjugate (40213314)  5 (1.9%)\nChild attention deficit disorder (440086)  2 (0.8%)\nvaricella virus vaccine (40213251)  5 (1.9%)\nFracture of forearm (4278672)  35 (0.8%)\nHaemophilus influenzae type b vaccine, PRP-OMP conjugate (40213314)  80 (1.8%)\nAcute bacterial sinusitis (4294548)  37 (0.8%)\nAcetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / doxylamine succinate 0.417 MG/ML Oral Solution (40229134)  67 (1.5%)\n\n\n9\nFracture of ankle (4059173)  3 (1.2%)\nIbuprofen 100 MG Oral Tablet (19019979)  4 (1.6%)\nFracture subluxation of wrist (4134304)  2 (0.8%)\nAcetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / doxylamine succinate 0.417 MG/ML Oral Solution (40229134)  4 (1.6%)\nFacial laceration (4156265)  2 (0.8%)\nPenicillin V Potassium 250 MG Oral Tablet (19133873)  5 (1.9%)\nFirst degree burn (4296204)  2 (0.8%)\n{7 (Inert Ingredients 1 MG Oral Tablet) / 21 (Mestranol 0.05 MG / Norethindrone 1 MG Oral Tablet) } Pack [Norinyl 1+50 28 Day] (19128065)  4 (1.5%)\nChild attention deficit disorder (440086)  34 (0.8%)\nvaricella virus vaccine (40213251)  65 (1.5%)\nSprain of wrist (78272)  34 (0.8%)\n{7 (Inert Ingredients 1 MG Oral Tablet) / 21 (Mestranol 0.05 MG / Norethindrone 1 MG Oral Tablet) } Pack [Norinyl 1+50 28 Day] (19128065)  58 (1.3%)\n\n\n10\nFracture of clavicle (4237458)  2 (0.8%)\nPenicillin V Potassium 250 MG Oral Tablet (19133873)  4 (1.6%)\nLaceration of hand (4113008)  2 (0.8%)\n{7 (Inert Ingredients 1 MG Oral Tablet) / 21 (Mestranol 0.05 MG / Norethindrone 1 MG Oral Tablet) } Pack [Norinyl 1+50 28 Day] (19128065)  4 (1.6%)\nFirst degree burn (4296204)  2 (0.8%)\nAmoxicillin 250 MG / Clavulanate 125 MG Oral Tablet (1713671)  4 (1.5%)\nFracture of clavicle (4237458)  2 (0.8%)\nIbuprofen 100 MG Oral Tablet (19019979)  3 (1.1%)\nFracture subluxation of wrist (4134304)  29 (0.7%)\nAcetaminophen 21.7 MG/ML / Dextromethorphan Hydrobromide 1 MG/ML / doxylamine succinate 0.417 MG/ML Oral Solution (40229134)  50 (1.1%)\nChild attention deficit disorder (440086)  31 (0.7%)\nHaemophilus influenzae type b vaccine, PRP-OMP conjugate (40213314)  46 (1.1%)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-7",
+    "href": "index.html#summarise-large-scale-characteristics-7",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\nplotComparedLargeScaleCharacteristics(\n  result = result,\n  colour = \"variable_level\",\n  reference = \"-365 to -1\",\n  facet = c(\"cohort_name\", \"table_name\")\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-8",
+    "href": "index.html#summarise-large-scale-characteristics-8",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\nplotComparedLargeScaleCharacteristics(\n  result = result,\n  colour = \"variable_level\",\n  reference = \"-365 to -1\",\n  facet = c(\"cohort_name\", \"table_name\")\n) |&gt;\n  ggplotly()"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-9",
+    "href": "index.html#summarise-large-scale-characteristics-9",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\nBy default the large scale characterisation is run using the standard concept id (e.g. drug_concept_id), but you can also run it using a pair of standard and source concepts with the option: includeSource = TRUE.\n\n\nresult &lt;- summariseLargeScaleCharacteristics(\n  cohort = cdm$my_cohort,\n  episodeInWindow = \"drug_exposure\",\n  eventInWindow = \"condition_occurrence\",\n  window = list(c(-365, -1), c(1, 365)),\n  includeSource = TRUE\n)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-10",
+    "href": "index.html#summarise-large-scale-characteristics-10",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\n\n\ntableLargeScaleCharacteristics(result = result)"
+  },
+  {
+    "objectID": "index.html#summarise-large-scale-characteristics-11",
+    "href": "index.html#summarise-large-scale-characteristics-11",
+    "title": "CohortCharacteristics",
+    "section": "Summarise large scale characteristics",
+    "text": "Summarise large scale characteristics\nNOTE that by default any concept with a smaller frequency than 0.5% (0.005) is trimmed from the results to avoid exporting not meaningful percentages. This can be controlled by the argument minimumFrequency. Set minimumFrequency = 0 if you want to export the percentage of every single concept (suppress rules will still apply and under minCellCount counts will be removed). Also you can set a higher threshold if you are only interested in high prevalent covariates. Computationally this won’t make a difference so in general it is not recommended to change this value unless you want to set minimumFrequency = 0.\n\nFinally, you can also exclude concepts from the search, by default the concept ID = 0 is excluded (excludedCodes = c(0))."
   },
   {
     "objectID": "index.html#cohortcharacteristics-1",
