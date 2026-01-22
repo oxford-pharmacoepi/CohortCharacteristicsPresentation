@@ -75,6 +75,7 @@ library(grid)
 library(png)
 library(gt)
 library(reactable)
+library(extrafont)
 ```
 
 . . .
