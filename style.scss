@@ -169,3 +169,8 @@ figcaption {
     word-wrap: break-word !important;
     white-space: pre-wrap !important;
 }
+
+.scroll {
+  height: 700px;
+  overflow-y: auto;
+}
